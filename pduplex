@@ -1,0 +1,54 @@
+#!/bin/bash
+usage() { echo "Usage: $0 [-p <page number>] [-f <file name>]" 1>&2; exit 1; }
+
+while getopts ":p:f:" o; do
+    case "${o}" in
+        p)
+            pages=${OPTARG}
+            ;;
+        f)
+            file=${OPTARG}
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+# Defining the pages to be printed for each side
+nstring=${#pages}  					# Number of characters in the string pages
+dash_position=`expr index "$pages" -` 	# Finding the position where the dash is located
+initial_page=${pages:0:dash_position-1}
+ending_page=${pages:dash_position}
+echo $ending_page
+
+# Defining the page numbers for the front side
+front_pages=
+for (( c=$initial_page; c<=$ending_page; c=c+2 ))
+do
+		front_pages=${front_pages/%/$c,}  
+done
+front_pages=${front_pages/%,/}
+
+# Defining the page numbers for the back side
+back_pages=
+for (( c=$initial_page+1; c<=$ending_page; c=c+2 ))
+do
+		back_pages=${back_pages/%/$c,} 
+done
+back_pages=${back_pages/%,/} 
+
+echo "Printing back side first"
+lp -P $back_pages -o outputorder=reverse -o orientation-requested=6 "$file"
+#lp -P $pages -o page-set=even -o outputorder=reverse -o orientation-requested=6 "$file"
+
+echo -n "Ready to Print front side? (y/n)"
+read character
+case $character in
+    y ) lp -P $front_pages "$file" 
+		#lp -P $pages -o page-set=odd "$file" 
+		echo "Finished"
+        ;;
+    * ) echo "Front side not printed"
+esac
