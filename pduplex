@@ -42,7 +42,7 @@ back_pages=${back_pages/%,/} 				# Removing the last comma
 echo "Printing pages from the back side first"
 lp -P $back_pages -o outputorder=reverse -o orientation-requested=6 "$file"
 
-echo -n "Press 'c' to continue printing the pages from the front side"
+echo -n "Press 'c' and enter to continue printing the pages from the front side: "
 read character
 case $character in
     c ) lp -P $front_pages "$file" 
